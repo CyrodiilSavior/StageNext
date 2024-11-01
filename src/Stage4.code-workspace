@@ -1,0 +1,16 @@
+{
+	"folders": [
+		{
+			"name": "Stage4",
+			"path": ".."
+		},
+		{
+			"path": "../../stage4-monitor"
+		}
+	],
+	"settings": {
+		"files.associations": {
+			"new": "cpp"
+		}
+	}
+}
