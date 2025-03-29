@@ -19,7 +19,8 @@ class GearControl {
     public:
         GearControl();
         ~GearControl();
-        void processInputData(InputData data);
+        void begin();
+        void processShiftRequests();
         bool upshift();
         bool downshift();
         int getCurrentGear();

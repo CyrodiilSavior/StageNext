@@ -1,5 +1,10 @@
 #include "gear_control.h"
 #include "defines.h"
+#include "PinChangeInterrupt.h"
+
+// Volatile flags set by ISRs
+volatile bool upshiftRequested   = false;
+volatile bool downshiftRequested = false;
 
 GearControl::GearControl() {
   this->setCurrentGear(1);
@@ -13,28 +18,39 @@ void GearControl::outputSignalToSolenoids(int s1, int s2, int s3, int s4, int sR
   digitalWrite(SOL_SR, sR);
 }
 
-void GearControl::processInputData(InputData data) {
-  unsigned long currentTime = millis(); // Get current time in milliseconds
-  
-  if (currentTime - lastTimeCheck >= 2000) {
-    lastTimeCheck = currentTime;
-    if (data.UpshiftRequested || this->lastMomentaryCommand == MOMENTARY_COMMAND_UPSHIFT) {
-      this->lastMomentaryCommand = "";
-      this->upshift();
-    } 
-    if (data.DownshiftRequested || this->lastMomentaryCommand == MOMENTARY_COMMAND_DOWNSHIFT) {
-      this->lastMomentaryCommand = "";
-      this->downshift();
-    }
-  } else {
-    if (data.UpshiftRequested) {
-      this->lastMomentaryCommand = MOMENTARY_COMMAND_UPSHIFT;
-    } 
-    if (data.DownshiftRequested) {
-      this->lastMomentaryCommand = MOMENTARY_COMMAND_DOWNSHIFT;
-    }
+void onUpshiftISR() {
+  upshiftRequested = true;
+}
+
+void onDownshiftISR() {
+  downshiftRequested = true;
+}
+
+void GearControl::begin() {
+    // Configure pins as inputs with pullups
+    pinMode(BUTTON_UPSHIFT,   INPUT_PULLUP);
+    pinMode(BUTTON_DOWNSHIFT, INPUT_PULLUP);
+
+    attachPCINT(digitalPinToPCINT(BUTTON_UPSHIFT),   onUpshiftISR,   RISING);
+    attachPCINT(digitalPinToPCINT(BUTTON_DOWNSHIFT), onDownshiftISR, RISING);
+}
+
+void GearControl::processShiftRequests() {
+  // Safely check and clear the volatile flags
+  noInterrupts();
+  bool ups = upshiftRequested;
+  upshiftRequested = false;
+  bool dns = downshiftRequested;
+  downshiftRequested = false;
+  interrupts();
+
+  // Now handle the requests outside the critical section
+  if (ups) {
+    this->upshift();
   }
-  return;
+  if (dns) {
+    this->downshift();
+  }
 }
 
 void GearControl::setCurrentGear(int input) {

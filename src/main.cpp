@@ -23,8 +23,6 @@ void setup() {
   pinMode(13, OUTPUT);
   Serial.begin(9600);
   Serial.println("Begin - AISIN a760 Controller - Firmware version 0.1");
-  pinMode(BUTTON_UPSHIFT, INPUT);
-  pinMode(BUTTON_DOWNSHIFT, INPUT);
   pinMode(BUTTON_LOCKUP, INPUT);
 
   // pinMode(POT_SL1, INPUT);
@@ -52,6 +50,8 @@ void setup() {
   inputReader = new InputReader();
   sysMonitor = new SystemMonitor(gearControl, pressureControl);
 
+  gearControl->begin();
+
   digitalWrite(13,0);
 }
 
@@ -63,8 +63,8 @@ void loop() {
   InputData inputData = inputReader->read();
   pressureControl->setPressureSolenoids(inputData);
   pressureControl->setLockup(inputData);
-  gearControl->processInputData(inputData);
-
+  gearControl->processShiftRequests();
+  
   unsigned long currentMillis = millis();
   if (currentMillis - previousMillis >= interval) {
       previousMillis = currentMillis;
