@@ -13,7 +13,9 @@ String SystemMonitor::captureState(InputData data) {
   state.inputData = data;
   state.CurrentGear = this->gearControl->getCurrentGear();
   state.lockupMode = this->pressureControl->getLockupState();
-  state.pressureSetting = this->pressureControl->getPressureSetting();
+  state.sl1Pressure = this->pressureControl->getSL1PressureSetting();
+  state.sl2Pressure = this->pressureControl->getSL2PressureSetting();
+  state.sltPressure = this->pressureControl->getSLTPressureSetting();
 
   return this->systemStateToJson(state);
 }
@@ -24,7 +26,7 @@ String SystemMonitor::systemStateToJson(const SystemState& state) {
     doc["inputData"]["UpshiftRequested"] = !state.inputData.UpshiftRequested;
     doc["inputData"]["DownshiftRequested"] = !state.inputData.DownshiftRequested;
     doc["inputData"]["LockupMode"] = state.inputData.LockupMode;
-    doc["inputData"]["PressureControl"] = state.inputData.PressureControl;
+    doc["inputData"]["ThrottlePercent"] = state.inputData.ThrottlePercent;
     doc["inputData"]["OilTemp"] = state.inputData.OilTemp;
 
     doc["pinState"]["SOL_S1"] = digitalRead(SOL_S1);
@@ -34,7 +36,9 @@ String SystemMonitor::systemStateToJson(const SystemState& state) {
     doc["pinState"]["SOL_SR"] = digitalRead(SOL_SR);
 
     doc["CurrentGear"] = state.CurrentGear;
-    doc["PressureSetting"] = state.pressureSetting;
+    doc["SL1Pressure"] = state.sl1Pressure;
+    doc["SL2Pressure"] = state.sl2Pressure;
+    doc["SLTPressure"] = state.sltPressure;
     doc["LockupState"] = state.lockupMode;
 
     String output;

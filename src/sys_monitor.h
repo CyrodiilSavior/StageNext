@@ -10,7 +10,9 @@ struct SystemState {
     InputData inputData;
     int CurrentGear;
     bool lockupMode;
-    int pressureSetting;
+    int sl1Pressure;
+    int sl2Pressure;
+    int sltPressure;
 };
 
 class SystemMonitor {

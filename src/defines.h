@@ -16,8 +16,12 @@
 #define BUTTON_DOWNSHIFT A2
 #define BUTTON_LOCKUP A3
 
+
+// Throttle Input
+#define THROTTLE_INPUT A4
+
 // Potentiometers (Analog Inputs)
-#define POT_GLOBAL A4
+// #define POT_GLOBAL A4
 // #define POT_SL1 A1
 // #define POT_SL2 A2
 // #define POT_SLT A3
