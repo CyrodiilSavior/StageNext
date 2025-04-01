@@ -21,8 +21,8 @@ String SystemMonitor::captureState(InputData data) {
 String SystemMonitor::systemStateToJson(const SystemState& state) {
     StaticJsonDocument<200> doc;
 
-    doc["inputData"]["UpshiftRequested"] = state.inputData.UpshiftRequested;
-    doc["inputData"]["DownshiftRequested"] = state.inputData.DownshiftRequested;
+    doc["inputData"]["UpshiftRequested"] = !state.inputData.UpshiftRequested;
+    doc["inputData"]["DownshiftRequested"] = !state.inputData.DownshiftRequested;
     doc["inputData"]["LockupMode"] = state.inputData.LockupMode;
     doc["inputData"]["PressureControl"] = state.inputData.PressureControl;
     doc["inputData"]["OilTemp"] = state.inputData.OilTemp;
