@@ -36,17 +36,17 @@ bool PressureControl::getLockupState() {
 // 1st - 4th gear go to 80% duty cycle (OFF)
 int PressureControl::calculateSL1Pressure(int throttlePercent) {
   if (this->gearControl->getCurrentGear() > 4) {
-    return 205;
+    return 0;
   }
-  return 820;
+  return 620;
 }
 
 // Reverse that for this solenoid
 int PressureControl::calculateSL2Pressure(int throttlePercent) {
   if (this->gearControl->getCurrentGear() < 4) {
-    return 205;
+    return 0;
   }
-  return 820;
+  return 620;
 }
 
 // Calculates duty cycle for the SLT Line pressure solenoid. 
@@ -54,14 +54,19 @@ int PressureControl::calculateSL2Pressure(int throttlePercent) {
 // Max is the maximum percent of possible pressure at highest throttle
 // Eg: min=20, max=80 -> at 0% Throttle pressure will be at 20% (analogWrite 205) at 100% throttle it'll be 80% (analogWrite 818)
 int PressureControl::calculateSLTPressure(int throttlePercent, int min, int max) {
-    throttlePercent = constrain(throttlePercent, 0, 100);
+  if(this->gearControl->getCurrentGear() >= 5) {
+    min = 20;
+    max = 20;
+  }
 
-    int dutyMin = (int)((1023.0f * min) / 100.0f);  // e.g. 20% → ~205
-    int dutyMax = (int)((1023.0f * max) / 100.0f);  // e.g. 80% → ~818
-    int dutyCycle = map(throttlePercent, 0, 100, dutyMax, dutyMin);
-    
-    dutyCycle = constrain(dutyCycle, min(dutyMin, dutyMax), max(dutyMin, dutyMax));
-    return dutyCycle;
+  throttlePercent = constrain(throttlePercent, 0, 100);
+
+  int dutyMin = (int)((1023.0f * min) / 100.0f);  // e.g. 20% → ~205
+  int dutyMax = (int)((1023.0f * max) / 100.0f);  // e.g. 80% → ~818
+  int dutyCycle = map(throttlePercent, 0, 100, dutyMax, dutyMin);
+  
+  dutyCycle = constrain(dutyCycle, min(dutyMin, dutyMax), max(dutyMin, dutyMax));
+  return dutyCycle;
 }
 
 int PressureControl::getSL1PressureSetting() {
