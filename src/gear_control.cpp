@@ -84,6 +84,7 @@ int GearControl::getCurrentGear() {
 bool GearControl::upshift() {
   if (this->currentGear < 6) {
     this->setCurrentGear(this->currentGear + 1);
+    this->lastUpshift = millis();
     return true;
   }
   return false;
@@ -92,7 +93,26 @@ bool GearControl::upshift() {
 bool GearControl::downshift() {
   if (this->currentGear > 1) {
     this->setCurrentGear(this->currentGear - 1);
+    this->lastDownshift = millis();
     return true;
   }
   return false;
+}
+
+long GearControl::timeSinceLastDownshift() {
+  return millis() - this->lastDownshift;
+}
+
+
+long GearControl::timeSinceLastUpshift() {
+  return millis() - this->lastDownshift;
+}
+
+
+long GearControl::timeSinceLastShift() {
+  if (this->lastDownshift > this->lastUpshift) {
+    return timeSinceLastDownshift();
+  } else {
+    return timeSinceLastUpshift();
+  }
 }

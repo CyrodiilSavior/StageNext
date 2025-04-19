@@ -11,6 +11,11 @@ class GearControl {
     private:
         int currentGear;
         
+        // For timing
+        long lastUpshift = 0;
+        long lastDownshift = 0;
+
+        // For momentary switches
         unsigned long lastTimeCheck = 0;
         String lastMomentaryCommand = "";
 
@@ -24,6 +29,9 @@ class GearControl {
         bool upshift();
         bool downshift();
         int getCurrentGear();
+        long timeSinceLastShift();
+        long timeSinceLastDownshift();
+        long timeSinceLastUpshift();
 };
 
 #endif
