@@ -14,7 +14,8 @@ InputData InputReader::read() {
     data.UpshiftRequested = digitalRead(BUTTON_UPSHIFT) == HIGH;
     data.DownshiftRequested = digitalRead(BUTTON_DOWNSHIFT) == HIGH;
     data.LockupMode = digitalRead(BUTTON_LOCKUP) == HIGH;
-    data.ThrottlePercent = (analogRead(THROTTLE_INPUT)/1023) * 100;
+    data.ThrottlePercent = (analogRead(THROTTLE_INPUT) * 100UL) / 1023;
     data.OilTemp = analogRead(TEMP_SENSOR);
     return data;
 }
+

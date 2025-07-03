@@ -105,7 +105,7 @@ long GearControl::timeSinceLastDownshift() {
 
 
 long GearControl::timeSinceLastUpshift() {
-  return millis() - this->lastDownshift;
+  return millis() - this->lastUpshift;
 }
 
 

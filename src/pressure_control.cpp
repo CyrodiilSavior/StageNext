@@ -22,7 +22,7 @@ void PressureControl::setPressureSolenoids(InputData input) {
 void PressureControl::setLockup(InputData input) {
   this->lockupState = input.LockupMode;
   if (this->lockupState) {
-    analogWrite(SOL_PWM_SLU, 1023);
+    analogWrite(SOL_PWM_SLU, 255);
   } else {
     analogWrite(SOL_PWM_SLU, 0);
   }
@@ -32,42 +32,84 @@ bool PressureControl::getLockupState() {
   return this->lockupState;
 }
 
-// For iteration 1 of this design, if 5th and 6th gear, go to 20% duty cycle (ON)
+// For iteration 1 of this design, if 5th and 6th gear, go to 0% duty cycle (ON)
 // 1st - 4th gear go to 80% duty cycle (OFF)
 int PressureControl::calculateSL1Pressure(int throttlePercent) {
   if (this->gearControl->getCurrentGear() > 4) {
-    return 0;
+    return 255;
   }
-  return 620;
+  return 0;
 }
 
 // Reverse that for this solenoid
 int PressureControl::calculateSL2Pressure(int throttlePercent) {
-  if (this->gearControl->getCurrentGear() < 4) {
-    return 0;
+  if (this->gearControl->getCurrentGear() <= 4) {
+    return 255;
   }
-  return 620;
+  return 0;
 }
 
-// Calculates duty cycle for the SLT Line pressure solenoid. 
-// Min is the minimum percent of possible pressure at lowest throttle
-// Max is the maximum percent of possible pressure at highest throttle
-// Eg: min=20, max=80 -> at 0% Throttle pressure will be at 20% (analogWrite 205) at 100% throttle it'll be 80% (analogWrite 818)
-int PressureControl::calculateSLTPressure(int throttlePercent, int min, int max) {
-  if(this->gearControl->getCurrentGear() >= 5) {
-    min = 20;
-    max = 20;
-  }
+/****************************************************************************************
+ *  calculateSLTByte
+ *
+ *  Aisin A760 →  SLT solenoid is **normally open**.
+ *  ──────────────────────────────────────────────────────────────────────────────────────
+ *  • More current (higher PWM duty) holds the valve open, BLEEDING line pressure away.
+ *  • Less current (lower duty) lets the valve close, RAISING line pressure.
+ *
+ *  Therefore:        **pressure  ↑  as  duty  ↓**
+ *
+ *  API
+ *  ──────────────────────────────────────────────────────────────────────────────────────
+ *  uint8_t calculateSLTPressure(
+ *            int throttlePct,           // 0‒100   (% throttle opening)
+ *            int pressurePctIdle,       // % of max pressure at 0% throttle
+ *            int pressurePctWOT);       // % of max pressure at 100% throttle
+ *
+ *      • The two "pressurePct" values are expressed in *human* terms:
+ *          0   =   valve fully open  (minimum line pressure)
+ *          100 =   valve fully shut  (maximum line pressure)
+ *      • The function converts those percentages into an 8‑bit duty cycle
+ *        where 0=100% pressure  and 255=0% pressure.
+ *      • It returns the ready‑to‑use analogWrite byte (0‒255).
+ *
+ *  SPECIAL BEHAVIOUR
+ *  ──────────────────────────────────────────────────────────────────────────────────────
+ *  • Once the transmission is in 5th or 6th gear *and* 300ms have elapsed
+ *    since the last up‑shift, both pressure targets are clamped to 90%
+ *    (=> a fixed baseline duty) to prevent 6th‑gear slip on flat throttle.
+ *
+ *  EXAMPLE CALL‑SITE
+ *  ──────────────────────────────────────────────────────────────────────────────────────
+ *      // want 20% pressure at idle throttle, 80% at WOT:
+ *      uint8_t sltByte = calculateSLTByte(input.ThrottlePercent, 20, 80);
+ *      analogWrite(SOL_PWM_SLT, sltByte);
+ *
+ ****************************************************************************************/
+int PressureControl::calculateSLTPressure(int throttlePct,int pressurePctIdle,int pressurePctWOT) {
+    throttlePct = 90;
+    // Steady‑state 5th / 6th → lock both ends at 80% pressure (≈ 20% duty)
+    if (gearControl->getCurrentGear() >= 5 &&
+        gearControl->timeSinceLastUpshift() > 300) {
+        pressurePctIdle = pressurePctWOT = 80;
+    }
 
-  throttlePercent = constrain(throttlePercent, 0, 100);
+    throttlePct      = constrain(throttlePct,      0, 100);
+    pressurePctIdle  = constrain(pressurePctIdle,  0, 100);
+    pressurePctWOT   = constrain(pressurePctWOT,   0, 100);
 
-  int dutyMin = (int)((1023.0f * min) / 100.0f);  // e.g. 20% → ~205
-  int dutyMax = (int)((1023.0f * max) / 100.0f);  // e.g. 80% → ~818
-  int dutyCycle = map(throttlePercent, 0, 100, dutyMax, dutyMin);
-  
-  dutyCycle = constrain(dutyCycle, min(dutyMin, dutyMax), max(dutyMin, dutyMax));
-  return dutyCycle;
+    // Convert "% pressure" → "% duty"
+    //   pressure 0%  → duty 100%
+    //   pressure 100%→ duty   0%
+    uint8_t dutyIdle = static_cast<uint8_t>((255.0f * (100 - pressurePctIdle)) / 100.0f);
+    uint8_t dutyWOT  = static_cast<uint8_t>((255.0f * (100 - pressurePctWOT )) / 100.0f);
+
+    // Map throttle 0→100%  to dutyIdle→dutyWOT  (linear ramp)
+    int duty = map(throttlePct, 0, 100, dutyIdle, dutyWOT);
+
+    return duty;   // 0‑255 → feed straight into analogWrite()
 }
+
 
 int PressureControl::getSL1PressureSetting() {
   return this->sl1Pressure;

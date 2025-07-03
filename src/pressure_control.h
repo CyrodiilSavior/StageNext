@@ -15,7 +15,7 @@ class PressureControl {
       GearControl *gearControl;
       int calculateSL1Pressure(int throttlePercent);
       int calculateSL2Pressure(int throttlePercent);
-      int calculateSLTPressure(int throttlePercent, int min, int max);
+      int calculateSLTPressure(int throttlePct,int pressurePctIdle,int pressurePctWOT);
     public:
       PressureControl(GearControl *gc);
       ~PressureControl();
