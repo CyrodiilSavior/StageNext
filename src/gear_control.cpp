@@ -6,8 +6,9 @@
 volatile bool upshiftRequested   = false;
 volatile bool downshiftRequested = false;
 
-GearControl::GearControl() {
+GearControl::GearControl(){
   this->setCurrentGear(1);
+  this->unlockTCC();
 }
 
 void GearControl::outputSignalToSolenoids(int s1, int s2, int s3, int s4, int sR) { 
@@ -46,9 +47,21 @@ void GearControl::processShiftRequests() {
 
   // Now handle the requests outside the critical section
   if (ups) {
+    // BEGIN TEMPORARY TCC CONTROL
+    if (this->currentGear >= 4 && !this->lockupState) {
+      this->lockupTCC();
+      return;
+    }
+    // END TEMPORARY TCC CONTROL
     this->upshift();
   }
   if (dns) {
+    // BEGIN TEMPORARY TCC CONTROL
+    if (this->lockupState) {
+      this->unlockTCC();
+      return;
+    }
+    // END TEMPORARY TCC CONTROL
     this->downshift();
   }
 }
@@ -81,6 +94,10 @@ int GearControl::getCurrentGear() {
   return this->currentGear;
 }
 
+bool GearControl::getLockupState() {
+  return this->lockupState;
+}
+
 bool GearControl::upshift() {
   if (this->currentGear < 6) {
     this->setCurrentGear(this->currentGear + 1);
@@ -103,11 +120,9 @@ long GearControl::timeSinceLastDownshift() {
   return millis() - this->lastDownshift;
 }
 
-
 long GearControl::timeSinceLastUpshift() {
   return millis() - this->lastUpshift;
 }
-
 
 long GearControl::timeSinceLastShift() {
   if (this->lastDownshift > this->lastUpshift) {
@@ -115,4 +130,24 @@ long GearControl::timeSinceLastShift() {
   } else {
     return timeSinceLastUpshift();
   }
+}
+
+// DEPRECATED (using the switch)
+void GearControl::setLockup(InputData input) {
+  this->lockupState = input.LockupMode;
+  if (this->lockupState) {
+    analogWrite(SOL_PWM_SLU, 255);
+  } else {
+    analogWrite(SOL_PWM_SLU, 0);
+  }
+}
+
+void GearControl::lockupTCC() {
+    this->lockupState = true;
+    analogWrite(SOL_PWM_SLU, 255);
+}
+
+void GearControl::unlockTCC() {
+  this->lockupState = false;
+  analogWrite(SOL_PWM_SLU, 0);
 }

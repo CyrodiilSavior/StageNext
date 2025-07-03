@@ -12,7 +12,7 @@ String SystemMonitor::captureState(InputData data) {
   SystemState state;
   state.inputData = data;
   state.CurrentGear = this->gearControl->getCurrentGear();
-  state.lockupMode = this->pressureControl->getLockupState();
+  state.lockupMode = this->gearControl->getLockupState();
   state.sl1Pressure = this->pressureControl->getSL1PressureSetting();
   state.sl2Pressure = this->pressureControl->getSL2PressureSetting();
   state.sltPressure = this->pressureControl->getSLTPressureSetting();

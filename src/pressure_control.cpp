@@ -2,7 +2,6 @@
 
 PressureControl::PressureControl(GearControl *gc) {
   this->gearControl = gc;
-  this->lockupState = false;
   this->sl1Pressure = 0;
   this->sl2Pressure = 0;
   this->sltPressure = 0;
@@ -17,19 +16,6 @@ void PressureControl::setPressureSolenoids(InputData input) {
   analogWrite(SOL_PWM_SL1, this->sl1Pressure);
   analogWrite(SOL_PWM_SL2, this->sl2Pressure);
   analogWrite(SOL_PWM_SLT, this->sltPressure);
-}
-
-void PressureControl::setLockup(InputData input) {
-  this->lockupState = input.LockupMode;
-  if (this->lockupState) {
-    analogWrite(SOL_PWM_SLU, 255);
-  } else {
-    analogWrite(SOL_PWM_SLU, 0);
-  }
-}
-
-bool PressureControl::getLockupState() {
-  return this->lockupState;
 }
 
 // For iteration 1 of this design, if 5th and 6th gear, go to 0% duty cycle (ON)

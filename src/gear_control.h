@@ -21,6 +21,8 @@ class GearControl {
 
         void setCurrentGear(int input);
         void outputSignalToSolenoids(int s1, int s2, int s3, int s4, int sR);
+
+        bool lockupState;
     public:
         GearControl();
         ~GearControl();
@@ -32,6 +34,11 @@ class GearControl {
         long timeSinceLastShift();
         long timeSinceLastDownshift();
         long timeSinceLastUpshift();
+        // For lockup shifts
+        void setLockup(InputData input);
+        void lockupTCC();
+        void unlockTCC();
+        bool getLockupState();
 };
 
 #endif
