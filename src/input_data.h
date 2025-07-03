@@ -5,7 +5,7 @@ struct InputData {
   bool UpshiftRequested;
   bool DownshiftRequested;
   bool LockupMode;
-  int  PressureControl;
+  int  ThrottlePercent;
   int  OilTemp;
 };
 

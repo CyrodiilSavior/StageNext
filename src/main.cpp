@@ -25,11 +25,6 @@ void setup() {
   Serial.println("Begin - AISIN a760 Controller - Firmware version 0.1");
   pinMode(BUTTON_LOCKUP, INPUT);
 
-  // pinMode(POT_SL1, INPUT);
-  // pinMode(POT_SL2, INPUT);
-  // pinMode(POT_SLT, INPUT);
-
-
   pinMode(SOL_S1, OUTPUT);
   pinMode(SOL_S2, OUTPUT);
   pinMode(SOL_S3, OUTPUT);
@@ -41,12 +36,12 @@ void setup() {
   pinMode(SOL_PWM_SLT, OUTPUT);
   pinMode(SOL_PWM_SLU, OUTPUT);
 
-  pinMode(POT_GLOBAL, INPUT);
+  pinMode(THROTTLE_INPUT, INPUT);
 
   pinMode(TEMP_SENSOR, INPUT);
   
   gearControl = new GearControl();
-  pressureControl = new PressureControl();
+  pressureControl = new PressureControl(gearControl);
   inputReader = new InputReader();
   sysMonitor = new SystemMonitor(gearControl, pressureControl);
 
