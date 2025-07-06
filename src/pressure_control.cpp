@@ -50,7 +50,7 @@ int PressureControl::calculateSL2Pressure(int throttlePercent) {
 }
 
 /****************************************************************************************
- *  calculateSLTByte
+ *  calculateSLTPressure
  *
  *  Aisin A760 →  SLT solenoid is **normally open**.
  *  ──────────────────────────────────────────────────────────────────────────────────────
@@ -82,12 +82,11 @@ int PressureControl::calculateSL2Pressure(int throttlePercent) {
  *  EXAMPLE CALL‑SITE
  *  ──────────────────────────────────────────────────────────────────────────────────────
  *      // want 20% pressure at idle throttle, 80% at WOT:
- *      uint8_t sltByte = calculateSLTByte(input.ThrottlePercent, 20, 80);
+ *      uint8_t sltByte = calculateSLTPressure(input.ThrottlePercent, 20, 80);
  *      analogWrite(SOL_PWM_SLT, sltByte);
  *
  ****************************************************************************************/
 int PressureControl::calculateSLTPressure(int throttlePct,int pressurePctIdle,int pressurePctWOT) {
-    throttlePct = 90;
     // Steady‑state 5th / 6th → lock both ends at 80% pressure (≈ 20% duty)
     if (gearControl->getCurrentGear() >= 5 &&
         gearControl->timeSinceLastUpshift() > 300) {
@@ -99,8 +98,8 @@ int PressureControl::calculateSLTPressure(int throttlePct,int pressurePctIdle,in
     pressurePctWOT   = constrain(pressurePctWOT,   0, 100);
 
     // Convert "% pressure" → "% duty"
-    //   pressure 0%  → duty 100%
-    //   pressure 100%→ duty   0%
+    //   pressure 0%   → duty 100%
+    //   pressure 100% → duty   0%
     uint8_t dutyIdle = static_cast<uint8_t>((255.0f * (100 - pressurePctIdle)) / 100.0f);
     uint8_t dutyWOT  = static_cast<uint8_t>((255.0f * (100 - pressurePctWOT )) / 100.0f);
 
