@@ -46,8 +46,6 @@ void setup() {
   sysMonitor = new SystemMonitor(gearControl, pressureControl);
 
   gearControl->begin();
-
-  digitalWrite(13,0);
 }
 
 const unsigned long interval = 1000;  // Interval for serial output in milliseconds
@@ -59,7 +57,6 @@ void loop() {
   pressureControl->setPressureSolenoids(inputData);
   pressureControl->setLockup(inputData);
   gearControl->processShiftRequests();
-  
   unsigned long currentMillis = millis();
   if (currentMillis - previousMillis >= interval) {
       previousMillis = currentMillis;
