@@ -57,7 +57,7 @@ void GearControl::processShiftRequests() {
   }
   if (dns) {
     // BEGIN TEMPORARY TCC CONTROL
-    if (this->lockupState) {
+    if (this->lockupState && this->currentGear < 6) {
       this->unlockTCC();
       return;
     }
