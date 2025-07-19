@@ -8,7 +8,6 @@
 
 class PressureControl {
     private:
-      bool lockupState;
       int sl1Pressure;
       int sl2Pressure;
       int sltPressure;
@@ -20,8 +19,6 @@ class PressureControl {
       PressureControl(GearControl *gc);
       ~PressureControl();
       void setPressureSolenoids(InputData input);
-      void setLockup(InputData input);
-      bool getLockupState();
       int getSL1PressureSetting();
       int getSL2PressureSetting();
       int getSLTPressureSetting();

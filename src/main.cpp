@@ -55,7 +55,6 @@ unsigned long previousMillis = 0;
 void loop() {
   InputData inputData = inputReader->read();
   pressureControl->setPressureSolenoids(inputData);
-  pressureControl->setLockup(inputData);
   gearControl->processShiftRequests();
   unsigned long currentMillis = millis();
   if (currentMillis - previousMillis >= interval) {

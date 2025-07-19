@@ -2,7 +2,6 @@
 
 PressureControl::PressureControl(GearControl *gc) {
   this->gearControl = gc;
-  this->lockupState = false;
   this->sl1Pressure = 0;
   this->sl2Pressure = 0;
   this->sltPressure = 0;
@@ -12,24 +11,16 @@ void PressureControl::setPressureSolenoids(InputData input) {
 
   this->sl1Pressure = this->calculateSL1Pressure(input.ThrottlePercent);
   this->sl2Pressure = this->calculateSL2Pressure(input.ThrottlePercent);
-  this->sltPressure = this->calculateSLTPressure(input.ThrottlePercent, 30, 85);
+
+  if (input.ThrottlePercent >= 5) {
+    this->sltPressure = this->calculateSLTPressure(input.ThrottlePercent, 55, 100);
+  } else {
+    this->sltPressure = this->calculateSLTPressure(input.ThrottlePercent, 40, 35);
+  }
 
   analogWrite(SOL_PWM_SL1, this->sl1Pressure);
   analogWrite(SOL_PWM_SL2, this->sl2Pressure);
   analogWrite(SOL_PWM_SLT, this->sltPressure);
-}
-
-void PressureControl::setLockup(InputData input) {
-  this->lockupState = input.LockupMode;
-  if (this->lockupState) {
-    analogWrite(SOL_PWM_SLU, 255);
-  } else {
-    analogWrite(SOL_PWM_SLU, 0);
-  }
-}
-
-bool PressureControl::getLockupState() {
-  return this->lockupState;
 }
 
 // For iteration 1 of this design, if 5th and 6th gear, go to 0% duty cycle (ON)
@@ -90,7 +81,7 @@ int PressureControl::calculateSLTPressure(int throttlePct,int pressurePctIdle,in
     // Steady‑state 5th / 6th → lock both ends at 80% pressure (≈ 20% duty)
     if (gearControl->getCurrentGear() >= 5 &&
         gearControl->timeSinceLastUpshift() > 300) {
-        pressurePctIdle = pressurePctWOT = 80;
+        pressurePctIdle = pressurePctWOT = 95;
     }
 
     throttlePct      = constrain(throttlePct,      0, 100);
