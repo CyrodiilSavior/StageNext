@@ -1,5 +1,5 @@
 #include "input_reader.h"
-#include "defines.h"
+#include "config.h"
 
 InputReader::InputReader() {
   return;

@@ -27,3 +27,18 @@
 // #define POT_SLT A3
 
 #define TEMP_SENSOR A0
+
+#ifndef CONFIG_H
+#define CONFIG_H
+
+typedef enum
+{
+  MANUAL,
+  CRUISE,
+  LIGHT_ACCEL,
+  HEAVY_ACCEL,
+  SLOWING_DOWN
+}CruiseMode;
+
+#endif
+

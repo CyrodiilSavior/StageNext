@@ -1,6 +1,6 @@
 #include <Arduino.h>
 #include "sys_monitor.h"
-#include "defines.h"
+#include "config.h"
 #include "gear_control.h"
 #include "input_reader.h"
 #include "input_data.h"
@@ -41,6 +41,7 @@ void setup() {
   pinMode(TEMP_SENSOR, INPUT);
   
   gearControl = new GearControl();
+
   pressureControl = new PressureControl(gearControl);
   inputReader = new InputReader();
   sysMonitor = new SystemMonitor(gearControl, pressureControl);
@@ -56,6 +57,10 @@ void loop() {
   InputData inputData = inputReader->read();
   pressureControl->setPressureSolenoids(inputData);
   gearControl->processShiftRequests();
+
+  // autoControl->setCurrentGear();
+  // autoControl->handleAuto56(inputData.ThrottlePercent);
+
   unsigned long currentMillis = millis();
   if (currentMillis - previousMillis >= interval) {
       previousMillis = currentMillis;

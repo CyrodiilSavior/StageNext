@@ -3,6 +3,7 @@
 
 #include <Arduino.h>
 #include "input_data.h"
+#include "config.h"
 
 #define MOMENTARY_COMMAND_UPSHIFT "Upshift"
 #define MOMENTARY_COMMAND_DOWNSHIFT "Downshift"
@@ -23,11 +24,13 @@ class GearControl {
         void outputSignalToSolenoids(int s1, int s2, int s3, int s4, int sR);
 
         bool lockupState;
+
     public:
         GearControl();
         ~GearControl();
         void begin();
         void processShiftRequests();
+        void processAutomaticUpdates(int throttlePercent);
         bool upshift();
         bool downshift();
         int getCurrentGear();

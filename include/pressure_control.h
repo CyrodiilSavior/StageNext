@@ -3,7 +3,7 @@
 
 #include <Arduino.h>
 #include "input_data.h"
-#include "defines.h"
+#include "config.h"
 #include "gear_control.h"
 
 class PressureControl {

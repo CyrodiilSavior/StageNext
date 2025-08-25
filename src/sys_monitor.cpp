@@ -1,6 +1,6 @@
 #include "sys_monitor.h"
 #include "ArduinoJson.h"
-#include "defines.h"
+#include "config.h"
 
 SystemMonitor::SystemMonitor(GearControl* gearControl, PressureControl* pressureControl) {
   this->gearControl = gearControl;
