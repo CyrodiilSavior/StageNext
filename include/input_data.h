@@ -4,6 +4,7 @@
 struct InputData {
   bool UpshiftRequested;
   bool DownshiftRequested;
+  float vssHz;
   bool LockupMode;
   int  ThrottlePercent;
   long RawThrottle;

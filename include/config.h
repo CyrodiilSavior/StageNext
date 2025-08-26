@@ -1,5 +1,5 @@
 // On/Off Solenoids
-#define SOL_S1 2
+#define SOL_S1 8
 #define SOL_S2 4
 #define SOL_S3 5
 #define SOL_S4 6
@@ -16,9 +16,11 @@
 #define BUTTON_DOWNSHIFT A2
 #define BUTTON_LOCKUP A3
 
-
 // Throttle Input
 #define THROTTLE_INPUT A4
+
+// VSS Input
+#define VSS_INPUT 2
 
 // Potentiometers (Analog Inputs)
 // #define POT_GLOBAL A4

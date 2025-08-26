@@ -13,11 +13,39 @@
   aisin 30-40le equipt vehicles to have a seamless swap.
 */
 
-
 SystemMonitor *sysMonitor;
 GearControl *gearControl;
 InputReader *inputReader;
 PressureControl *pressureControl;
+
+// For VSS
+volatile unsigned long pulseCount = 0;
+unsigned long lastMillis = 0;
+const unsigned long sampleInterval = 100; // ms (0.1s)
+float vssReading = 0.0;
+
+// For serial output 
+const unsigned long interval = 1000;  // Interval for serial output in milliseconds
+unsigned long previousMillis = 0;
+
+void vssISR() {
+  pulseCount++;
+}
+
+float readVSS(InputData inputData) {
+  // Take SpeedSensor sample
+  unsigned long now = millis();
+  if (now - lastMillis >= sampleInterval) {
+    noInterrupts();
+    unsigned long count = pulseCount;
+    pulseCount = 0;
+    interrupts();
+
+    // Frequency in Hz = pulses / (sampleInterval in seconds)
+    vssReading = (count * 1000.0) / sampleInterval;
+    lastMillis = now;
+  }
+}
 
 void setup() {
   pinMode(13, OUTPUT);
@@ -37,6 +65,7 @@ void setup() {
   pinMode(SOL_PWM_SLU, OUTPUT);
 
   pinMode(THROTTLE_INPUT, INPUT);
+  pinMode(VSS_INPUT, INPUT_PULLUP);
 
   pinMode(TEMP_SENSOR, INPUT);
   
@@ -47,14 +76,14 @@ void setup() {
   sysMonitor = new SystemMonitor(gearControl, pressureControl);
 
   gearControl->begin();
+  attachInterrupt(digitalPinToInterrupt(VSS_INPUT), vssISR, RISING);
 }
 
-const unsigned long interval = 1000;  // Interval for serial output in milliseconds
-unsigned long previousMillis = 0;
 
 // Reads inputs, commands pressure controller, gear controller and reports state as JSON to serial
 void loop() {
-  InputData inputData = inputReader->read();
+  InputData inputData = inputReader->read(vssReading);
+  readVSS(inputData);
   pressureControl->setPressureSolenoids(inputData);
   gearControl->processShiftRequests();
 

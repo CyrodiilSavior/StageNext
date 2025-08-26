@@ -10,7 +10,7 @@ class InputReader {
     public:
         InputReader();
         ~InputReader();
-        InputData read();
+        InputData read(float vssReading);
 };
 
 #endif
