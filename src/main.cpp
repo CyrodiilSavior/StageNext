@@ -89,8 +89,9 @@ void loop() {
   InputData inputData = inputReader->read(vssReading);
   pressureControl->setPressureSolenoids(inputData);
   // gearControl->processShiftRequests();
-  autoControl->shouldUpshift(inputData);
-  autoControl->shouldDownshift(inputData);
+  // autoControl->shouldUpshift(inputData);
+  // autoControl->shouldDownshift(inputData);
+  autoControl->applyAuto(inputData);
   unsigned long currentMillis = millis();
   if (currentMillis - previousMillis >= interval) {
       previousMillis = currentMillis;
