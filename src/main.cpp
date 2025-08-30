@@ -2,6 +2,7 @@
 #include "sys_monitor.h"
 #include "config.h"
 #include "gear_control.h"
+#include "automatic_control.h"
 #include "input_reader.h"
 #include "input_data.h"
 #include "pressure_control.h"
@@ -15,6 +16,7 @@
 
 SystemMonitor *sysMonitor;
 GearControl *gearControl;
+automatic_control *autoControl;
 InputReader *inputReader;
 PressureControl *pressureControl;
 
@@ -32,7 +34,7 @@ void vssISR() {
   pulseCount++;
 }
 
-float readVSS(InputData inputData) {
+float readVSS() {
   // Take SpeedSensor sample
   unsigned long now = millis();
   if (now - lastMillis >= sampleInterval) {
@@ -70,29 +72,28 @@ void setup() {
   pinMode(TEMP_SENSOR, INPUT);
   
   gearControl = new GearControl();
-
   pressureControl = new PressureControl(gearControl);
   inputReader = new InputReader();
   sysMonitor = new SystemMonitor(gearControl, pressureControl);
 
   gearControl->begin();
+  autoControl = new automatic_control(gearControl);
+
   attachInterrupt(digitalPinToInterrupt(VSS_INPUT), vssISR, RISING);
 }
 
 
 // Reads inputs, commands pressure controller, gear controller and reports state as JSON to serial
 void loop() {
+  readVSS();
   InputData inputData = inputReader->read(vssReading);
-  readVSS(inputData);
   pressureControl->setPressureSolenoids(inputData);
-  gearControl->processShiftRequests();
-
-  // autoControl->setCurrentGear();
-  // autoControl->handleAuto56(inputData.ThrottlePercent);
-
+  // gearControl->processShiftRequests();
+  autoControl->shouldUpshift(inputData);
+  autoControl->shouldDownshift(inputData);
   unsigned long currentMillis = millis();
   if (currentMillis - previousMillis >= interval) {
       previousMillis = currentMillis;
-      Serial.println(sysMonitor->captureState(inputData));
+      // Serial.println(sysMonitor->captureState(inputData));
   }
 }

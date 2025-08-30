@@ -3,59 +3,48 @@
 #define ARDUINO_AUTOMATIC_CONTROL_H
 #include <Arduino.h>
 #include "gear_control.h"
+#include "input_data.h"
 
 class automatic_control  
 {
 	private:
-    // upshiftMapTPvsGEARvsMPH
-    int upshiftMap[6][5] = {
-    //   1→2  2→3  3→4  4→5  5→6
-      {  7,  13,  20,  29,  55},   // 0-21%
-      {  7,  14,  24,  35,  58},   // 21-28%
-      { 10,  19,  32,  47,  62},   // 28-38%
-      { 29,  50,  76, 108,  70},   // 38-76%
-      { 34,  55,  84, 119,  75},   // 76-85%
-      { 36,  57,  84, 119,  80}    // 85-100%
-    };
-		// downshiftMapTPvsGEARvsMPH
-		//   2→1  3→2  4→3  5→4  6→5
-		int downshiftMap[6][5] = {
-			{  8, 14, 22, 32, 45},   // 0-21%
-			{  9, 15, 24, 35, 48},   // 21-28%
-			{ 11, 18, 28, 42, 50},   // 28-38%
-			{ 13, 24, 36, 55, 55},   // 38-76%
-			{ 15, 28, 44, 65, 60},   // 76-85%
-			{ 18, 35, 55, 78, 65}    // 85-100%
+		GearControl *gearControl;
+		const int throttleBands[6] = {21, 28, 38, 76, 85, 100};
+		// const int throttleBands[6] = {21, 21, 21, 21, 21, 21};
+
+		// upshiftMapTPvsGEARvsHz
+		// rows = throttle bands: 0-21, 21-28, 28-38, 38-76, 76-85, 85-100%
+		// cols = 1→2, 2→3, 3→4, 4→5, 5→6
+		int upshiftMap[6][5] = {
+			{150, 231, 427,  577,  691},  // 0-21%  (your 'feels nice' row)
+			{210, 300, 480,  650,  775},  // 21-28%
+			{240, 400, 620,  840,  900},  // 28-38%
+			{260, 532, 854, 1150, 1000},  // 38-76%
+			{290, 640, 980, 1350, 1050},  // 76-85%
+			{300, 730,1080, 1500, 1100}   // 85-100%
 		};
 
+		// downshiftMapTPvsGEARvsHz
+		//   2→1   3→2   4→3   5→4   6→5
+		int downshiftMap[6][5] = {
+			{ 85, 240, 360,  500,  650},   // 0-21%
+			{ 95, 270, 410,  560,  720},   // 21-28%
+			{120, 340, 520,  720,  850},   // 28-38%
+			{170, 480, 730,  980,  930},   // 38-76%
+			{190, 550, 820, 1150,  980},   // 76-85%
+			{210, 600, 900, 1280, 1050}    // 85-100%
+		};
+		int getThrottleBand(int throttlePercent);
 	public:
-		automatic_control();
-
+		automatic_control(GearControl *gc){this->gearControl = gc;};
+		bool shouldUpshift(InputData inputData);
+		bool shouldDownshift(InputData inputData);
 };
 #endif
 
 
    
 // const int throttleBands[6] = {21, 28, 38, 76, 85, 100};
-
-// int getThrottleBand(int throttlePercent) {
-//     for (int i = 0; i < 6; i++) {
-//         if (throttlePercent <= throttleBands[i]) {
-//             return i;  // matched this band
-//         }
-//     }
-//     return 5; // default to last band (85-100%) if out of range
-// }
-
-// bool autoLogic(int gear, int throttle, int speed) {
-//     int band = getThrottleBand(throttle);
-
-//     if (speed > upshiftMap[band][gear-1]) {
-//         return true;
-//     } else {
-//         return false;   
-//     }
-// }
 
 // int main()
 // {
