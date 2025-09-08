@@ -26,7 +26,6 @@ class automatic_control
 			{300, 730,1080, 1500, 1100}    // 85-100%
 		};
 
-
 		// downshiftMapTPvsGEARvsHz
 		// rows = throttle bands: 0-21, 21-28, 28-38, 38-76, 76-85, 85-100%
 		// cols = 2→1, 3→2, 4→3, 5→4, 6→5
@@ -39,7 +38,30 @@ class automatic_control
 			{200, 600, 900, 1400, 1000}    // 85-100%
 		};
 
+		// tccLockHz[band][g-3]  // g = 3..6
+		int tccLockHz[6][4] = {
+		//     g3    g4     g5     g6
+			{   330,  500,   630,   720 },   // 0-21%
+			{   420,  560,   700,   820 },   // 21-28%
+			{   500,  720,   820,   940 },   // 28-38%
+			{   700,  980,  1200,  1300 },   // 38-76%  (5/6 effectively disabled at this band)
+			{   780, 1120,  1400,  1500 },   // 76-85%  (disable 5/6 lock at high throttle)
+			{   860, 1300,  1600,  1700 }    // 85-100% (disable 5/6 lock at WOT)
+		};
+
+		// tccUnlockHz[band][g-3]  // g = 3..6
+		int tccUnlockHz[6][4] = {
+		//     g3    g4     g5     g6
+			{   260,  400,   560,   680 },   // 0-21%   (> dn: 210,360,500,650)
+			{   330,  470,   610,   740 },   // 21-28%  (> dn: 270,410,560,720)
+			{   420,  620,   740,   880 },   // 28-38%  (> dn: 340,520,720,850)
+			{   600,  860,  1030,   950 },   // 38-76%  (> dn: 480,730,980,930)
+			{   620,  900,  1180,  1020 },   // 76-85%  (> dn: 550,820,1150,980)
+			{   700, 1000,  1300,  1100 }    // 85-100% (> dn: 600,900,1280,1050)
+		};
+
 		int getThrottleBand(int throttlePercent);
+		bool applyTCC(int currentGear, int band, int hz);
 	public:
 		automatic_control(GearControl *gc){this->gearControl = gc;};
 		bool shouldUpshift(InputData inputData);

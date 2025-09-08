@@ -16,6 +16,34 @@ int automatic_control::getThrottleBand(int tps) {
   return band;
 }
 
+bool automatic_control::applyTCC(int currentGear, int band, int hz) {
+  bool tccLocked = this->gearControl->getLockupState();
+
+  if (currentGear < 3) { if (tccLocked) tccLocked = false; return; }
+
+  int col = currentGear - 3;
+  int lockThr   = tccLockHz[band][col];
+  int unlockThr = tccUnlockHz[band][col];
+
+  if (tccLocked) {
+    if (hz < unlockThr /* or big tip-in event */) {
+      // PRIORITIZE: unlock before allowing a downshift
+      Serial.println("UNLOCKING");
+      this->gearControl->unlockTCC();
+      return true;
+      // start a small TCC hold timer if you want (e.g., 300 ms)
+    }
+  } else {
+    if (hz > lockThr /* and no inhibits */) {
+      Serial.println("LOCKING");
+      this->gearControl->lockupTCC();
+      return true;
+    }
+  }
+  return false;
+}
+
+
 
 // int automatic_control::getThrottleBand(int throttlePercent) {
 //   for (int i = 0; i < 6; i++) {
@@ -63,6 +91,13 @@ void automatic_control::applyAuto(InputData in) {
   // bounds guard
   if (g < 1) g = 1; 
   if (g > 6) g = 6;
+
+  bool lockupChange = this->applyTCC(g, band, hz);
+
+  if(lockupChange) {
+    lastShiftMs = now;
+    return;
+  }
 
   bool doUp = false, doDown = false;
 
