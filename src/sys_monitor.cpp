@@ -1,6 +1,6 @@
 #include "sys_monitor.h"
 #include "ArduinoJson.h"
-#include "defines.h"
+#include "config.h"
 
 SystemMonitor::SystemMonitor(GearControl* gearControl, PressureControl* pressureControl) {
   this->gearControl = gearControl;
@@ -25,6 +25,7 @@ String SystemMonitor::systemStateToJson(const SystemState& state) {
 
     doc["inputData"]["UpshiftRequested"] = !state.inputData.UpshiftRequested;
     doc["inputData"]["DownshiftRequested"] = !state.inputData.DownshiftRequested;
+    doc["inputData"]["VSSHz"] = state.inputData.vssHz;
     doc["inputData"]["LockupMode"] = state.inputData.LockupMode;
     doc["inputData"]["ThrottlePercent"] = state.inputData.ThrottlePercent;
     doc["inputData"]["OilTemp"] = state.inputData.OilTemp;

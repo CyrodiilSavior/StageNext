@@ -1,5 +1,5 @@
 #include "gear_control.h"
-#include "defines.h"
+#include "config.h"
 #include "PinChangeInterrupt.h"
 
 // Volatile flags set by ISRs
