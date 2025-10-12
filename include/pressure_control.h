@@ -17,7 +17,6 @@ class PressureControl {
       int calculateSLTPressure(int throttlePct,int pressurePctIdle,int pressurePctWOT);
     public:
       PressureControl(GearControl *gc);
-      ~PressureControl();
       void setPressureSolenoids(InputData input);
       int getSL1PressureSetting();
       int getSL2PressureSetting();

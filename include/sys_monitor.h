@@ -22,7 +22,6 @@ class SystemMonitor {
         String systemStateToJson(const SystemState& state);
     public:
         SystemMonitor(GearControl* gearControl, PressureControl* pressureControl);
-        ~SystemMonitor();
         String captureState(InputData data);
 };
 

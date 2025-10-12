@@ -5,10 +5,6 @@ InputReader::InputReader() {
   return;
 }
 
-InputReader::~InputReader() {
-  return;
-}
-
 InputData InputReader::read(float vssReading) {
     InputData data;    
     data.UpshiftRequested = digitalRead(BUTTON_UPSHIFT) == HIGH;

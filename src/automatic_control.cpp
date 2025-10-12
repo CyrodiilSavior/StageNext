@@ -1,25 +1,32 @@
 #include "automatic_control.h"  
 
-const int bandEdges[4] = {21, 38, 85, 100};
 const int N = 50;
 static int band = 0;
 static int counter = 0;
 
 int automatic_control::getThrottleBand(int tps) {
-  if (band < 4 && tps > bandEdges[band]) {
+  if (band < this->NumBands-1 && tps > this->throttleBands[band]) {
     if (++counter >= N) { band++; counter = 0; }
-  } else if (band > 0 && tps <= bandEdges[band-1]) {
+  } else if (band > 0 && tps <= this->throttleBands[band-1]) {
     if (++counter >= N) { band--; counter = 0; }
   } else {
     counter = 0; // reset if not continuously past edge
   }
+  if (band < 0) band = 0;
+  if (band >= this->NumBands) band = this->NumBands - 1;
   return band;
 }
 
 bool automatic_control::applyTCC(int currentGear, int band, int hz) {
   bool tccLocked = this->gearControl->getLockupState();
 
-  if (currentGear < 4) { if (tccLocked) tccLocked = false; return false; }
+  if (currentGear < 4) { 
+    if (tccLocked) {
+      this->gearControl->unlockTCC();
+      return true; 
+    }
+    return false;
+  }
 
   int col = currentGear - 4;
   int lockThr   = tccLockHz[band][col];
@@ -41,32 +48,8 @@ bool automatic_control::applyTCC(int currentGear, int band, int hz) {
   return false;
 }
 
-bool automatic_control::shouldUpshift(InputData inputData) {
-  int band = this->getThrottleBand(inputData.ThrottlePercent);
-  int captured = inputData.vssHz;
-  if (captured > upshiftMap[band][gearControl->getCurrentGear()-1]) {
-    Serial.println("UPSHIFTING");
-    this->gearControl->upshift();
-      return true;
-  } else {
-      return false;   
-  }
-}
-
-bool automatic_control::shouldDownshift(InputData inputData) {
-  int band = this->getThrottleBand(inputData.ThrottlePercent);
-  int captured = inputData.vssHz;
-  if (captured < downshiftMap[band][gearControl->getCurrentGear()-1] && inputData.vssHz < 100 && gearControl->getCurrentGear() != 1) {
-    Serial.println("DOWNSHIFTING");
-    this->gearControl->downshift();
-      return true;
-  } else {
-      return false;   
-  }
-}
-
 uint32_t lastShiftMs = 0;
-const uint32_t minHoldMs = 500;  // tune later
+const uint32_t minHoldMs = 750;  // tune later
 
 void automatic_control::applyAuto(InputData in) {
   uint32_t now = millis();

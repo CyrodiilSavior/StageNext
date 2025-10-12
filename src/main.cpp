@@ -34,7 +34,7 @@ void vssISR() {
   pulseCount++;
 }
 
-float readVSS() {
+void readVSS() {
   // Take SpeedSensor sample
   unsigned long now = millis();
   if (now - lastMillis >= sampleInterval) {

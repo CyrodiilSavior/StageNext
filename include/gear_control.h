@@ -27,7 +27,6 @@ class GearControl {
 
     public:
         GearControl();
-        ~GearControl();
         void begin();
         void processShiftRequests();
         void processAutomaticUpdates(int throttlePercent);
