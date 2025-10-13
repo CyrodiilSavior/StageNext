@@ -14,6 +14,8 @@ int automatic_control::getThrottleBand(int tps) {
   }
   if (band < 0) band = 0;
   if (band >= this->NumBands) band = this->NumBands - 1;
+        Serial.println(band);
+
   return band;
 }
 
