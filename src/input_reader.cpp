@@ -9,7 +9,7 @@ InputData InputReader::read(float vssReading) {
     InputData data;    
     data.UpshiftRequested = digitalRead(BUTTON_UPSHIFT) == HIGH;
     data.DownshiftRequested = digitalRead(BUTTON_DOWNSHIFT) == HIGH;
-    data.LockupMode = digitalRead(BUTTON_LOCKUP) == HIGH;
+    data.LockupMode = false;
     data.OilTemp = analogRead(TEMP_SENSOR);
     data.vssHz = vssReading;
 
@@ -21,4 +21,3 @@ InputData InputReader::read(float vssReading) {
     }
     return data;
 }
-

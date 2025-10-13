@@ -11,36 +11,18 @@
 #define SOL_PWM_SLT 11 // Line pressure control & Accumulator back pressure control 
 #define SOL_PWM_SLU 3 // Lock-up clutch pressure control
 
-// Buttons
+// Manual Inputs
+#define REVERSE_SW 12
+#define MANUAL_SW A3
 #define BUTTON_UPSHIFT A1
 #define BUTTON_DOWNSHIFT A2
-#define BUTTON_LOCKUP A3
 
-// Throttle Input
+// Automatic Inputs
 #define THROTTLE_INPUT A4
-
-// VSS Input
 #define VSS_INPUT 2
-
-// Potentiometers (Analog Inputs)
-// #define POT_GLOBAL A4
-// #define POT_SL1 A1
-// #define POT_SL2 A2
-// #define POT_SLT A3
 
 #define TEMP_SENSOR A0
 
 #ifndef CONFIG_H
 #define CONFIG_H
-
-typedef enum
-{
-  MANUAL,
-  CRUISE,
-  LIGHT_ACCEL,
-  HEAVY_ACCEL,
-  SLOWING_DOWN
-}CruiseMode;
-
 #endif
-

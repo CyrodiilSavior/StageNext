@@ -53,8 +53,6 @@ void setup() {
   pinMode(13, OUTPUT);
   Serial.begin(9600);
   Serial.println("Begin - AISIN a760 Controller - Firmware version 0.1");
-  pinMode(BUTTON_LOCKUP, INPUT);
-
   pinMode(SOL_S1, OUTPUT);
   pinMode(SOL_S2, OUTPUT);
   pinMode(SOL_S3, OUTPUT);

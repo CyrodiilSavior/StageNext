@@ -43,7 +43,6 @@ class automatic_control
 			{   1040,  1280,  1440 }    // 86-100%
 		};
 
-		// tccUnlockHz[band][g-3]  // g = 3..6
 		int tccUnlockHz[NumBands][3] = {
 			{    320,   440,   540 },   // 0-21%
 			{    440,   600,   760 },   // 22-32%
@@ -60,24 +59,3 @@ class automatic_control
 		void applyAuto(InputData in);
 };
 #endif
-
-
-   
-// const int throttleBands[6] = {21, 28, 38, 76, 85, 100};
-
-// int main()
-// {
-//     int gear = 1;
-//     int throttle = 20;
-//     for (int speed = 0; speed <= 100; speed++) {
-//         bool upshifted = autoLogic(gear, throttle, speed);
-//         if (upshifted) {
-//             std::cout << "SHIFTED FROM " << gear << " AT " << speed << "mph\n";
-//             if (gear < 5) {
-//                 gear++;
-//             } else {
-//                 break;   
-//             }
-//         }
-//     }
-// }
